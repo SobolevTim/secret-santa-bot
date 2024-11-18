@@ -1,0 +1,38 @@
+services:
+  # Сервис для PostgreSQL
+  db:
+    image: postgres:latest
+    container_name: secret_santa_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - santadb:/var/lib/postgresql/data
+    networks:
+      - bot-santa
+    ports:
+      - "5432:5432"
+    restart: always
+    mem_limit: 400m
+    cpus: "0.5"
+
+  # Сервис для вашего бота
+  bot:
+    build: .
+    container_name: secret_santa_bot
+    depends_on:
+      - db
+    networks:
+      - bot-santa
+    restart: always
+    mem_limit: 100m
+    cpus: "0.2"
+
+networks:
+  bot-santa:
+    driver: bridge
+
+volumes:
+  santadb:
+    driver: local
